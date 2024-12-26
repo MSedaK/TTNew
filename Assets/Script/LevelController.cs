@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 public class LevelController : MonoBehaviour
 {
-
     public static LevelController Instance;
 
     [SerializeField] private GameObject _loaderCanvas;
     [SerializeField] private Slider _progressBar;
 
-
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -29,12 +27,16 @@ public class LevelController : MonoBehaviour
 
     public async void LoadScene(string sceneName)
     {
+        // Skorlarý koruma: Skor sahne geçiþlerinden önce kaydedilir
+        ScoreManager.Instance.SaveScores();
+
         var scene = SceneManager.LoadSceneAsync(sceneName);
         scene.allowSceneActivation = false;
 
         _loaderCanvas.SetActive(true);
 
-        do {
+        do
+        {
             await Task.Delay(100);
             _progressBar.value = scene.progress;
         } while (scene.progress < 0.9f);
@@ -45,6 +47,10 @@ public class LevelController : MonoBehaviour
 
     public void ReloadScene()
     {
+        // Skoru sýfýrla
+        ScoreManager.Instance.ResetScore();
+
+        // Geçerli sahneyi yeniden yükle
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

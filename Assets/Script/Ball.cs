@@ -23,7 +23,7 @@ public class Ball : MonoBehaviour
 
     public void MoveUp(int distance)
     {
-        transform.DOLocalMoveY(transform.position.y+184+distance, 0.25f, false);
+        transform.DOLocalMoveY(transform.position.y + 184 + distance, 0.25f, false);
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -31,10 +31,10 @@ public class Ball : MonoBehaviour
         if (collision.gameObject.GetComponent<CollisionDetector>() != null)
         {
             // When it collides with a ball, it attaches the ball to the rotative object:
-            
+
             RotationObject rotationObject = FindObjectOfType<RotationObject>();
             Vector3 position = collision.transform.position;
-            
+
             DOTween.Kill(transform); // Ends the current DOTween animation
 
             // Generates a line between the ball and the center
@@ -47,7 +47,11 @@ public class Ball : MonoBehaviour
             lineRenderer.positionCount = 2;
             lineRenderer.SetPosition(0, rotationObject.transform.position);
             lineRenderer.SetPosition(1, transform.position);
-        } else if (collision.GetComponent<Ball>())
+
+            // Add score when ball successfully attaches
+            ScoreManager.Instance.AddScore();
+        }
+        else if (collision.GetComponent<Ball>())
         {
             gameController.GameOver();
         }
