@@ -1,35 +1,40 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
 {
+    public const string CURRENT_SCORE = "CurrentScore";
+    public const string HIGH_SCORE = "HighScore";
+
     public static ScoreManager Instance { get; private set; }
 
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI highScoreText;
     [SerializeField] private AudioClip scoreSound;
-    [SerializeField] private GameObject scorePopupPrefab;
 
     private int currentScore = 0;
     private int highScore = 0;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // Sahneler arasý korunmasýný saðlar
-            LoadScores();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Instance = this;
     }
 
     private void Start()
     {
+        highScore = PlayerPrefs.GetInt(HIGH_SCORE, 0);
         UpdateUI();
+
+        if(SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            ResetScore();
+        }
+        else
+        {
+            currentScore = PlayerPrefs.GetInt(CURRENT_SCORE, 0);
+            UpdateUI();
+        }
     }
 
     public void AddScore()
@@ -38,34 +43,26 @@ public class ScoreManager : MonoBehaviour
         if (currentScore > highScore)
         {
             highScore = currentScore;
-            PlayerPrefs.SetInt("HighScore", highScore); // En yüksek skoru kaydeder
+            PlayerPrefs.SetInt(HIGH_SCORE, highScore);
         }
+        PlayerPrefs.SetInt(CURRENT_SCORE, currentScore);
         UpdateUI();
 
-        // Ses efekti çal
         if (scoreSound != null)
             AudioSource.PlayClipAtPoint(scoreSound, Camera.main.transform.position);
-
-        // Puan popup göster
-        if (scorePopupPrefab != null)
-            Instantiate(scorePopupPrefab, scoreText.transform.position, Quaternion.identity);
     }
 
     public void ResetScore()
     {
         currentScore = 0;
+        PlayerPrefs.SetInt(CURRENT_SCORE, currentScore);
         UpdateUI();
     }
 
     public void SaveScores()
     {
-        PlayerPrefs.SetInt("HighScore", highScore);
+        PlayerPrefs.SetInt(HIGH_SCORE, highScore);
         PlayerPrefs.Save();
-    }
-
-    private void LoadScores()
-    {
-        highScore = PlayerPrefs.GetInt("HighScore", 0); // En yüksek skoru yükler
     }
 
     private void UpdateUI()
