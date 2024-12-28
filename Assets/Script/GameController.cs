@@ -38,20 +38,32 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        if (remaining != 0)
+        if (lose)
         {
-            if (Input.GetMouseButtonDown(0) && lose != true)
-            {
-                if (launchTimeCondition == true)
-                {
-                    LaunchBall();
-                }
-            }
-        } else
+            // Oyun kaybedildiyse, sadece TryAgain butonu aktif olacak
+            TryAgainButton.gameObject.SetActive(true);
+            NextLevelButton.gameObject.SetActive(false);
+            return; // Daha fazla iþlem yapýlmaz
+        }
+
+        if (remaining == 0)
         {
+            // Kalan top kalmadýysa ve oyun kaybedilmediyse, sadece NextLevel butonu aktif olacak
             NextLevelButton.gameObject.SetActive(true);
+            TryAgainButton.gameObject.SetActive(false);
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0) && !lose)
+        {
+            if (launchTimeCondition)
+            {
+                LaunchBall();
+            }
         }
     }
+
+
 
     void InvokeBalls()
     {
@@ -96,10 +108,12 @@ public class GameController : MonoBehaviour
 
     public void GameOver()
     {
-        lose = true;
-        TryAgainButton.gameObject.SetActive(true);
-        mainCamera.backgroundColor = new Color(0.45f,0.18f,0.2f);
+        lose = true; // Oyun kaybedildi olarak iþaretleniyor
+        TryAgainButton.gameObject.SetActive(true); // Sadece TryAgain aktif ediliyor
+        mainCamera.backgroundColor = new Color(0.45f, 0.18f, 0.2f);
     }
+
+
 
     public void Complete()
     {
